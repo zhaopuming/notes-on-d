@@ -8,32 +8,21 @@ in the [post](https://forum.dlang.org/post/mailman.1154.1476359814.2994.digitalm
 ## Temporarily ignore function/templates without @nogc attribute
 
 ```d
-import std.traits;
 
-auto ngc(alias Func, T...)(T xs) @nogc
-{
-    import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
-    static auto assumeNogcPtr(T)(T f) if (isFunctionPointer!T ||
+import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
+static auto ngcptr(T)(T f) if (isFunctionPointer!T ||
             isDelegate!T)
-    {   
-        enum attrs = functionAttributes!T | FunctionAttribute.nogc;
-        return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) f;
-    } {}
-    return assumeNogcPtr(&Func)(xs);
-}
-
-auto tngc(alias Func, T...)(T xs) @nogc
 {
-    import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
-    static auto assumeNogcPtr(T)(T f) if (isFunctionPointer!T ||
-            isDelegate!T)
-    {   
-        enum attrs = functionAttributes!T | FunctionAttribute.nogc;
-        return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) f;
-    } {}
-    return assumeNogcPtr(&Func!T)(xs);
-}
+    enum attrs = functionAttributes!T | FunctionAttribute.nogc;
+    return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) f;
+};
 
+/// For normal functions
+auto ngc(alias Func, T...)(T xs) @nogc { return ngcptr(&Func)(xs); }
+/// For templates
+auto tngc(alias Func, T...)(T xs) @nogc { return ngcptr(&Func!T)(xs); }
+
+/// test
 
 int myadd(int a, int b) { return a + b; }
 
