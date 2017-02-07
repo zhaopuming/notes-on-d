@@ -10,7 +10,6 @@ in the [post](https://forum.dlang.org/post/mailman.1154.1476359814.2994.digitalm
 ```d
 import std.traits;
 
-/// For normal functions
 auto ngc(alias Func, T...)(T xs) @nogc
 {
     import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
@@ -23,7 +22,6 @@ auto ngc(alias Func, T...)(T xs) @nogc
     return assumeNogcPtr(&Func)(xs);
 }
 
-/// For templated functions
 auto tngc(alias Func, T...)(T xs) @nogc
 {
     import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
@@ -35,6 +33,7 @@ auto tngc(alias Func, T...)(T xs) @nogc
     } {}
     return assumeNogcPtr(&Func!T)(xs);
 }
+
 
 int myadd(int a, int b) { return a + b; }
 
